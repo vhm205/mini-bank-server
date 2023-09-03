@@ -1,0 +1,52 @@
+version: '3'
+name: 'mongo-cluster'
+
+services:
+  mongodb-primary:
+    image: "bitnami/mongodb:latest"
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_REPLICA_SET_NAME=mrs
+      - MONGODB_USERNAME=minibank
+      - MONGODB_PASSWORD=password
+      - MONGODB_DATABASE=mini_bank
+
+  mongodb-secondary:
+    image: 'bitnami/mongodb:latest'
+    ports:
+      - "27019:27017"
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_REPLICA_SET_NAME=mrs
+
+  mongodb-arbiter:
+    image: 'bitnami/mongodb:latest'
+    ports:
+      - "27020:27017"
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-arbiter
+      - MONGODB_REPLICA_SET_MODE=arbiter
+      - MONGODB_INITIAL_PRIMARY_HOST=mongodb-primary
+      - MONGODB_INITIAL_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_REPLICA_SET_NAME=mrs
+
+networks:
+  default:
+    name: mongo-rs-net
+    external: true

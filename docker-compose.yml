@@ -1,0 +1,59 @@
+version: '3'
+name: 'mongo-cluster'
+
+services:
+  rs1:
+    image: "mongo:5.0"
+    container_name: rs1
+    ports:
+      - "30001:27017"
+    restart: always
+    env_file:
+      - .env.docker
+    volumes:
+      # - .docker-data/mongo/initdb.d:/docker-entrypoint-initdb.d
+      - .docker-data/mongo/data/rs1:/data/db
+    entrypoint: ['mongod', '--bind_ip_all', '--replSet', 'mongo-rs']
+
+  rs2:
+    image: "mongo:5.0"
+    container_name: rs2
+    ports:
+      - "30002:27017"
+    restart: always
+    volumes:
+      - .docker-data/mongo/data/rs2:/data/db
+    entrypoint: ['mongod', '--bind_ip_all', '--replSet', 'mongo-rs']
+
+  rs3:
+    image: "mongo:5.0"
+    container_name: rs3
+    ports:
+      - "30003:27017"
+    restart: always
+    volumes:
+      - .docker-data/mongo/data/rs3:/data/db
+    entrypoint: ['mongod', '--bind_ip_all', '--replSet', 'mongo-rs']
+
+  setup:
+    image: "mongo:5.0"
+    container_name: mongo-setup
+    restart: "no"
+    depends_on:
+      - rs1
+      - rs2
+      - rs3
+    env_file:
+      - .env.docker
+    volumes:
+      - .docker-data/mongo/replica/setup.sh:/data/setup.sh
+    entrypoint: ['bash', '/data/setup.sh']
+
+# networks:
+#   mongors-network:
+#     driver: bridge
+
+networks:
+  default:
+    name: mongo-rs-net
+    external: true

@@ -1,0 +1,6 @@
+Replica set for documentation of all options, see:
+  http://docs.mongodb.org/manual/reference/configuration-options/
+Docker network:
+  https://docs.docker.com/compose/networking/
+Docker init fresh instance:
+  https://github.com/docker-library/docs/tree/master/mongo#initializing-a-fresh-instance
